@@ -65,6 +65,7 @@ fun DraggableAndZoomableImage(@DrawableRes image: Int) {
 
     Box(
         Modifier
+            .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
             .graphicsLayer(
                 scaleX = scale,
                 scaleY = scale,
@@ -72,6 +73,13 @@ fun DraggableAndZoomableImage(@DrawableRes image: Int) {
                 translationX = offset.x,
                 translationY = offset.y
             )
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    offsetX += dragAmount.x
+                    offsetY += dragAmount.y
+                }
+            }
             // add transformable to listen to multitouch transformation events
             // after offset
             .transformable(state = state)
@@ -80,7 +88,7 @@ fun DraggableAndZoomableImage(@DrawableRes image: Int) {
     ) {
         Image(
             modifier = Modifier
-                .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
+
                 .align(Alignment.Center) // keep the image centralized into the Box
                 .graphicsLayer(
                     // adding some zoom limits (min 50%, max 200%)
@@ -88,13 +96,6 @@ fun DraggableAndZoomableImage(@DrawableRes image: Int) {
                     scaleY = scale.coerceIn(.5f, 3f),
                     rotationZ = rotationState.value
                 )
-                .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        change.consume()
-                        offsetX += dragAmount.x
-                        offsetY += dragAmount.y
-                    }
-                }
                 .size(400.dp),
             contentDescription = null,
             painter = painterResource(image),
